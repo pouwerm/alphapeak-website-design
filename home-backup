@@ -1,0 +1,704 @@
+import { useRef, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, TrendingUp, Shield, Zap, ExternalLink, Target, Users, Award, BarChart3, Brain, Database, FlaskConical, Quote, Check } from 'lucide-react'
+import { useScrollAnimation } from '../hooks/useScrollAnimation'
+import { motion, useInView, useAnimation } from 'framer-motion'
+
+const Home = () => {
+  const heroRef = useScrollAnimation({ threshold: 0.1 })
+  // const appRef = useScrollAnimation({ threshold: 0.2 })
+  const featuresRef = useScrollAnimation({ threshold: 0.2 })
+  const athleteDevRef = useScrollAnimation({ threshold: 0.3 })
+  const researchRef = useScrollAnimation({ threshold: 0.4 })
+  // const trainingRef = useScrollAnimation({ threshold: 0.5 })
+  // const biomechanicsRef = useScrollAnimation({ threshold: 0.6 })
+  const ctaRef = useScrollAnimation({ threshold: 0.7 })
+
+  // Animation refs and controls for the app preview section
+  const appPreviewRef = useRef(null)
+  const isAppInView = useInView(appPreviewRef, { once: true, margin: '-100px' })
+  const appControls = useAnimation()
+
+  // Phone carousel state and refs
+  const phoneCarouselRef = useRef<HTMLDivElement>(null)
+  const [currentPhoneIndex, setCurrentPhoneIndex] = useState(0)
+  const [ ,setIsScrolling] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+
+  const phones = [
+    {
+      type: 'video',
+      src: '/assets/videos/jack_weaver.MOV_processed.mp4',
+      background: 'bg-gray-900',
+      title: 'Performance Tracking'
+    },
+    {
+      type: 'image',
+      src: '/assets/images/app_1.jpg',
+      background: 'bg-white',
+      title: 'Analytics Dashboard'
+    },
+    {
+      type: 'image',
+      src: '/assets/images/app_2.jpg',
+      background: 'bg-white',
+      title: 'AI Powered Recommendations'
+    }
+  ]
+
+  // REMOVE auto-rotate carousel when not hovered
+  // useEffect(() => {
+  //   if (isHovered) return
+  //   const interval = setInterval(() => {
+  //     setCurrentPhoneIndex(prev => (prev + 1) % phones.length)
+  //   }, 4000)
+  //   return () => clearInterval(interval)
+  // }, [isHovered, phones.length])
+
+  useEffect(() => {
+    if (isAppInView) {
+      appControls.start('visible')
+    }
+  }, [isAppInView, appControls])
+
+  // Handle horizontal scroll for phone carousel
+  useEffect(() => {
+    const carousel = phoneCarouselRef.current
+    if (!carousel) return
+
+    let isScrolling = false
+    let startX = 0
+    let scrollLeft = 0
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      
+      if (!isScrolling) {
+        setIsScrolling(true)
+        setTimeout(() => setIsScrolling(false), 150)
+        
+        if (e.deltaY > 0) {
+          setCurrentPhoneIndex(prev => Math.min(prev + 1, phones.length - 1))
+        } else {
+          setCurrentPhoneIndex(prev => Math.max(prev - 1, 0))
+        }
+      }
+    }
+
+    const handleTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].pageX - carousel.offsetLeft
+      scrollLeft = carousel.scrollLeft
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!startX) return
+      e.preventDefault()
+      const x = e.touches[0].pageX - carousel.offsetLeft
+      const walk = (x - startX) * 2
+      carousel.scrollLeft = scrollLeft - walk
+    }
+
+    const handleTouchEnd = () => {
+      startX = 0
+      const scrollPosition = carousel.scrollLeft
+      const itemWidth = carousel.offsetWidth
+      const newIndex = Math.round(scrollPosition / itemWidth)
+      setCurrentPhoneIndex(Math.max(0, Math.min(newIndex, phones.length - 1)))
+    }
+
+    carousel.addEventListener('wheel', handleWheel, { passive: false })
+    carousel.addEventListener('touchstart', handleTouchStart, { passive: false })
+    carousel.addEventListener('touchmove', handleTouchMove, { passive: false })
+    carousel.addEventListener('touchend', handleTouchEnd)
+
+    return () => {
+      carousel.removeEventListener('wheel', handleWheel)
+      carousel.removeEventListener('touchstart', handleTouchStart)
+      carousel.removeEventListener('touchmove', handleTouchMove)
+      carousel.removeEventListener('touchend', handleTouchEnd)
+    }
+  }, [phones.length])
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      },
+    },
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+  }
+
+  const phoneVariants = {
+    hidden: { opacity: 0, scale: 0.8, rotateY: -45 },
+    visible: { 
+      opacity: 1, 
+      scale: 1, 
+      rotateY: 0,
+      transition: { duration: 0.8, ease: 'easeOut' }
+    },
+    exit: { 
+      opacity: 0, 
+      scale: 0.8, 
+      rotateY: 45,
+      transition: { duration: 0.4, ease: 'easeIn' }
+    }
+  }
+
+  const features = [
+    {
+      icon: TrendingUp,
+      title: 'AI Biomechanic Research',
+      description: 'Cutting-edge research in AI-powered biomechanic analysis, developing next-generation athletic performance technology.'
+    },
+    {
+      icon: Shield,
+      title: 'Athlete Development Program',
+      description: 'Direct collaboration with elite sponsored athletes to test, refine, and validate our innovative training methodologies.'
+    },
+    {
+      icon: Zap,
+      title: 'Expert Training Resources',
+      description: 'Comprehensive online training platform providing athletes with access to our research-backed methodologies and programs.'
+    }
+  ]
+
+  const athleteBenefits = [
+    {
+      icon: Target,
+      title: 'Elite Development',
+      description: 'Specialized training programs designed to develop the next generation of high-performing athletes.'
+    },
+    {
+      icon: TrendingUp,
+      title: 'Performance Tracking',
+      description: 'Advanced monitoring systems to track progress and optimize training for peak performance.'
+    },
+    {
+      icon: Award,
+      title: 'Injury Prevention',
+      description: 'Proactive health monitoring and prevention strategies to maintain long-term athletic success.'
+    },
+    {
+      icon: Users,
+      title: 'Expert Coaching',
+      description: 'Access to world-class coaches and sports science professionals for elite-level guidance.'
+    }
+  ]
+
+  const researchProjects = [
+    {
+      icon: Brain,
+      title: 'Custom Pose Estimation ML Model',
+      description: 'Develop and train machine learning models to accurately track and analyze the biomechanics of athletes in motion, focusing on running and throwing events.'
+    },
+    {
+      icon: Database,
+      title: 'Computer Vision Biomechanics',
+      description: 'Develop new methods to measure biomechanics using computer vision and deep learning, covering events like sprinting, hurdling, and endurance running.'
+    },
+    {
+      icon: BarChart3,
+      title: 'Advanced Visualization Tools',
+      description: 'Create user-friendly visualization tools to transform complex biomechanical data into actionable insights for athletes and coaches.'
+    },
+    {
+      icon: Target,
+      title: 'AI-Driven Coaching Insights',
+      description: 'Build an AI-driven expert system to assist coaches by generating insights based on biomechanical and athletic performance data.'
+    }
+  ]
+
+  const featuredAthlete = {
+    name: 'Jane Hedengren',
+    sport: 'Track & Field',
+    achievement: '6 High School National Records',
+    image: '/assets/athletes/jane_finish.jpg',
+    quote: 'AlphaPeak Development Group didn\'t just improve my performance—they transformed my entire approach to athletics. The personalized biomechanic analysis revealed inefficiencies I never knew existed.',
+    improvement: '-9 Seconds in Mile'
+  }
+
+  return (
+    <div className="bg-white text-gray-900">
+      {/* Hero Section */}
+      <section className="bg-white section-padding relative z-10">
+        <div className="container-max">
+          <div 
+            ref={heroRef.elementRef}
+            className={`text-center max-w-4xl mx-auto transition-all duration-1000 ${
+              heroRef.isVisible 
+                ? 'opacity-100 translate-y-0 scale-100' 
+                : 'opacity-0 translate-y-10 scale-95'
+            }`}
+          >
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              <span className="gradient-text">Unleash</span> Your Peak Performance
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              Learn more about the AlphaPeak personalized training plans and cutting-edge AI biomechanic technology.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                to="/technology" 
+                className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 inline-flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Learn More
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+              <Link
+                to="/training-plans"
+                className="border-2 border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-600 font-semibold py-3 px-8 rounded-lg transition-all duration-200 inline-flex items-center justify-center transform hover:scale-105"
+              >
+                Explore Training Plans
+                <ExternalLink className="ml-2 w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative bg-white py-16 md:py-24 overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <motion.div
+            ref={appPreviewRef}
+            variants={containerVariants}
+            initial="hidden"
+            animate={appControls}
+            className="text-center mb-16"
+          >
+            <motion.div variants={itemVariants} className="inline-flex items-center px-4 py-2 rounded-full bg-red-50 text-red-700 text-sm font-medium mb-6">
+              <span className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></span>
+              Coming Soon
+            </motion.div>
+            <motion.h2
+              variants={itemVariants}
+              className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight"
+            >
+              The Future of <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-orange-500">Athletic Training</span>
+            </motion.h2>
+            <motion.p
+              variants={itemVariants}
+              className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
+            >
+              Experience the next generation of performance tracking with our AI-powered mobile platform. Personalized training plans, real-time biomechanical analysis, and expert coaching insights.
+            </motion.p>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Phone Mockups */}
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate={appControls}
+              className="relative flex justify-center"
+            >
+              <div 
+                ref={phoneCarouselRef}
+                className="relative w-full max-w-[340px] sm:max-w-[400px] aspect-[9/19] overflow-hidden"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
+                {phones.map((phone, index) => (
+                  <motion.div
+                    key={index}
+                    variants={phoneVariants}
+                    initial="hidden"
+                    animate={currentPhoneIndex === index ? "visible" : "hidden"}
+                    exit="exit"
+                    className={`absolute inset-0 w-full h-full rounded-[2.5rem] overflow-hidden shadow-2xl ${phone.background} ${
+                      currentPhoneIndex === index ? 'z-20' : 'z-10'
+                    }`}
+                    style={{
+                      transform: `translateX(${(index - currentPhoneIndex) * 100}%)`,
+                      transition: 'transform 0.6s ease-out'
+                    }}
+                  >
+                    {phone.type === 'video' ? (
+                      <video
+                        className="w-full h-full object-cover"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                      >
+                        <source src={phone.src} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <div
+                        className={`w-full h-full bg-no-repeat ${
+                          phone.src.includes('app_1.jpg') 
+                            ? 'bg-contain bg-center' 
+                            : 'bg-cover bg-center'
+                        }`}
+                        style={{ 
+                          backgroundImage: `url(${phone.src})`,
+                          backgroundColor: phone.src.includes('app_1.jpg') ? '#f8fafc' : 'transparent'
+                        }}
+                      ></div>
+                    )}
+                    
+                    {/* Phone Title Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4">
+                      <h4 className="text-white text-sm font-semibold text-center">
+                        {phone.title}
+                      </h4>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Carousel Indicators */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-30">
+                {phones.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentPhoneIndex(index)}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      currentPhoneIndex === index 
+                        ? 'bg-white scale-125' 
+                        : 'bg-white/50 hover:bg-white/75'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Scroll Hint */}
+              <motion.div 
+                className="absolute top-4 right-4 bg-black/20 backdrop-blur-sm rounded-full px-3 py-1 text-white text-xs font-medium z-30"
+                animate={{ opacity: isHovered ? 0 : 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                Scroll to rotate
+              </motion.div>
+
+              {/* Navigation Arrows */}
+              <button
+                onClick={() => setCurrentPhoneIndex(prev => Math.max(prev - 1, 0))}
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/40 transition-all duration-200 z-30"
+              >
+                <ArrowRight className="w-4 h-4 rotate-180" />
+              </button>
+              <button
+                onClick={() => setCurrentPhoneIndex(prev => Math.min(prev + 1, phones.length - 1))}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/40 transition-all duration-200 z-30"
+              >
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+
+            {/* Content */}
+            <motion.div variants={containerVariants} initial="hidden" animate={appControls} className="space-y-8">
+              <motion.div variants={itemVariants}>
+                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                  Track. Train. <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-orange-500">Triumph.</span>
+                </h3>
+                <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
+                  Our comprehensive mobile platform brings cutting-edge sports science directly to your device. Monitor performance, receive personalized coaching, and optimize your training with AI-driven insights.
+                </p>
+              </motion.div>
+
+              {/* Feature List */}
+              <div className="space-y-6">
+                {[
+                  {
+                    title: 'Real-time Performance Tracking',
+                    description: 'Monitor your biomechanics, speed, and form with precision sensors and computer vision.',
+                    gradient: 'from-red-500 to-orange-500',
+                  },
+                  {
+                    title: 'AI-Powered Coaching',
+                    description: 'Get personalized training plans and technique advice from our advanced AI assistant.',
+                    gradient: 'from-orange-500 to-yellow-500',
+                  },
+                  {
+                    title: 'Expert Community',
+                    description: 'Connect with elite athletes, coaches, and sports scientists in our exclusive network.',
+                    gradient: 'from-yellow-500 to-red-500',
+                  },
+                ].map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    variants={itemVariants}
+                    className="flex items-start space-x-4"
+                  >
+                    <div className={`w-8 h-8 bg-gradient-to-r ${feature.gradient} rounded-full flex items-center justify-center flex-shrink-0`}>
+                      <Check className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1 text-lg">{feature.title}</h4>
+                      <p className="text-gray-600 text-sm sm:text-base">{feature.description}</p>
+                      {/* Platform badges for Expert Community */}
+                      {feature.title === 'Expert Community' && (
+                        <div className="flex items-center space-x-4 mt-3">
+                          <div className="flex items-center space-x-2 text-gray-500">
+                            <div className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center">
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                              </svg>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 text-gray-500">
+                            <div className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center">
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM19 10h1c.55 0 1 .45 1 1v3c0 .55-.45 1-1 1h-1v-5zM5 10h1v5H5c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1z"/>
+                                <path d="M10 9H8V8h2c.55 0 1 .45 1 1s-.45 1-1 1zm6 0h-2c-.55 0-1 .45-1 1s.45 1 1 1h2V8h-2v1z"/>
+                                <path d="M12 1C7.03 1 3 5.03 3 10v6c0 1.1.9 2 2 2h1v-2H5v-6c0-3.87 3.13-7 7-7s7 3.13 7 7v6h-1v2h1c1.1 0 2-.9 2-2v-6c0-4.97-4.03-9-9-9z"/>
+                              </svg>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 text-gray-500">
+                            
+
+                            <div className="flex items-center space-x-2 text-gray-500">
+                              <div className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center">
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                                </svg>
+                              </div>
+                              <span className="text-xs font-medium">Available Soon</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Athlete Development Program Section */}
+      <section className="section-padding relative z-10">
+        <div className="container-max">
+          <div 
+            ref={athleteDevRef.elementRef}
+            className={`text-center mb-16 transition-all duration-1000 ${
+              athleteDevRef.isVisible 
+                ? 'opacity-100 translate-y-0' 
+                : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+              AlphaPeak <span className="gradient-text">Development Group</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Discover our elite training group developing the next generation of healthy and high-performing athletes through cutting-edge technology and personalized coaching.
+            </p>
+          </div>
+
+          {/* Featured Athlete Success Story */}
+          <div className="mb-16">
+            <div className="bg-gradient-to-br from-red-50 to-purple-50 rounded-2xl p-8 md:p-12">
+              <div className="grid lg:grid-cols-3 gap-8 items-center">
+                <div className="lg:col-span-1 text-center">
+                  <div className="w-48 h-48 mx-auto rounded-full overflow-hidden border-8 border-gradient-to-br from-red-500 via-orange-500 to-yellow-500 shadow-2xl mb-6">
+                    <img
+                      src={featuredAthlete.image}
+                      alt={featuredAthlete.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{featuredAthlete.name}</h3>
+                  <p className="text-red-600 font-semibold text-lg mb-1">{featuredAthlete.sport}</p>
+                  <p className="text-gray-500 mb-3">{featuredAthlete.achievement}</p>
+                  <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-800">
+                    <TrendingUp className="w-5 h-5 mr-2" />
+                    {featuredAthlete.improvement}
+                  </div>
+                </div>
+                <div className="lg:col-span-2">
+                  <Quote className="w-8 h-8 text-red-500 mb-4" />
+                  <blockquote className="text-xl text-gray-700 italic leading-relaxed mb-6">
+                    "{featuredAthlete.quote}"
+                  </blockquote>
+                  <Link
+                    to="/athletes"
+                    className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    Meet Our Athletes
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Development Benefits */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {athleteBenefits.map((benefit, index) => (
+              <div 
+                key={index}
+                className={`card text-center transition-all duration-1000 delay-${index * 200} ${
+                  athleteDevRef.isVisible 
+                    ? 'opacity-100 translate-y-0 scale-100' 
+                    : 'opacity-0 translate-y-10 scale-95'
+                }`}
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <benefit.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                  {benefit.title}
+                </h3>
+                <p className="text-gray-600">
+                  {benefit.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Research Initiative Section */}
+      <section className="section-padding bg-gray-50 relative z-10">
+        <div className="container-max">
+          <div 
+            ref={researchRef.elementRef}
+            className={`text-center mb-16 transition-all duration-1000 ${
+              researchRef.isVisible 
+                ? 'opacity-100 translate-y-0' 
+                : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <div className="mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-700 mb-2">
+                BYU x AlphaPeak
+              </h2>
+              <div className="w-24 h-1 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 mx-auto"></div>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+              Athletics & <span className="gradient-text">Data-Driven Engineering</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              The BYU Chemical Engineering Data-Driven Engineering Initiative aims to revolutionize undergraduate education by integrating advanced data science, machine learning, and artificial intelligence techniques.
+            </p>
+            <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-red-100 text-red-800 mt-4">
+              <FlaskConical className="w-4 h-4 mr-2" />
+              Powered by AlphaPeak
+            </div>
+          </div>
+
+          {/* Research Projects */}
+          <div className="grid md:grid-cols-2 gap-8">
+            {researchProjects.map((project, index) => (
+              <div 
+                key={index}
+                className={`card transition-all duration-1000 delay-${index * 200} ${
+                  researchRef.isVisible 
+                    ? 'opacity-100 translate-y-0 scale-100' 
+                    : 'opacity-0 translate-y-10 scale-95'
+                }`}
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 rounded-lg flex items-center justify-center mb-4">
+                  <project.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                  {project.title}
+                </h3>
+                <p className="text-gray-600">
+                  {project.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link
+              to="/research"
+              className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 inline-flex items-center shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              Explore Our Research
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="section-padding relative z-10">
+        <div className="container-max">
+          <div 
+            ref={featuresRef.elementRef}
+            className={`text-center mb-16 transition-all duration-1000 ${
+              featuresRef.isVisible 
+                ? 'opacity-100 translate-y-0' 
+                : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+              What is AlphaPeak?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              We combine rigorous scientific research with real-world athlete collaboration to push the boundaries of athletic performance.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div 
+                key={index}
+                className={`card text-center transition-all duration-1000 delay-${index * 200} ${
+                  featuresRef.isVisible 
+                    ? 'opacity-100 translate-y-0 scale-100' 
+                    : 'opacity-0 translate-y-10 scale-95'
+                }`}
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <feature.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 section-padding relative z-10">
+        <div className="container-max text-center">
+          <div 
+            ref={ctaRef.elementRef}
+            className={`transition-all duration-1000 ${
+              ctaRef.isVisible 
+                ? 'opacity-100 translate-y-0 scale-100' 
+                : 'opacity-0 translate-y-10 scale-95'
+            }`}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+              Want to learn more? Connect with us!
+            </h2>
+            <p className="text-xl text-red-100 mb-8 max-w-2xl mx-auto">
+              Send us a message to learn more about our research and how we can help you achieve your athletic goals.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                to="/contact"
+                className="bg-white text-gray-900 hover:bg-gray-100 font-semibold py-3 px-8 rounded-lg transition-all duration-200 inline-flex items-center justify-center shadow-lg transform hover:scale-105"
+              >
+                Contact Us
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+export default Home
