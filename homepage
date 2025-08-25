@@ -1,0 +1,26 @@
+/* Home  */
+
+position: relative;
+width: 1280px;
+height: 4520px;
+
+background: #FFFFFF;
+/* Header Navigation */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+
+position: absolute;
+width: 1280px;
+height: 81px;
+left: 0px;
+top: 0px;
+
+background: #FFFFFF;
+border-bottom: 1.5px solid #EEF0F3;
+
